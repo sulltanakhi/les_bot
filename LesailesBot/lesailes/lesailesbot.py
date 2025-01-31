@@ -330,7 +330,6 @@ async def fikr(message: types.Message):
     print(8, user_data)
 
 
-
 async def olibketish(message: types.Message):
     user_id = message.from_user.id
     user_data[user_id]["holat"] = "olibketish"
@@ -379,6 +378,7 @@ lists = {"Yunusobod":"Yunusobod \nA. Donish ko‘chasi, 80",
          "Next":"Next\nBobur ko‘chasi, 6-uy",
          "Zenit":"Zenit\n7-й квартал, 49, массив Юнусабад, Юнусабадский район, Ташкент",
          "Sergeli":"Sergeli\nGolden life KSM",
+         "Buyuk ipak yo'li": "Buyuk ipak yo'li\n",
          }
 
 
@@ -414,7 +414,7 @@ main_menu = [
 async def asosiymenu(message: types.Message):
     user_id = message.from_user.id
     location = message.text
-    if location == '↖️ Ortga':
+    if location == '↖️ Ortga' or location == '↪️ Ortga':
         loc = 'salom'
     else:
         loc = lists[location]
@@ -802,21 +802,37 @@ async def checkcallback(callback: types.CallbackQuery):
 async def show_cart(message: types.Message):
     user_id = message.from_user.id
     if user_id not in user_data or not user_data[user_id].get("basket"):
-        await message.answer("🛒 Sizning savatingiz bo'sh")
+        button = [
+            [types.KeyboardButton(text="⬅️ Ortga"), types.KeyboardButton(text="Оформить заказ ✅")],
+            [types.KeyboardButton(text="🔄 Очистить")],
+        ]
+        keyboard = types.ReplyKeyboardMarkup(keyboard=button, resize_keyboard=True)
+        await message.answer("🛒 Sizning savatingiz bo'sh", reply_markup=keyboard )
         return
-
     cart_items = user_data[user_id]["basket"]
     total_price = 0
     cart_text = "🛒 Sizning savatingiz:\n\n"
-
     for idx, (item_name, item_count) in enumerate(cart_items.items(), start=1):
         item_price = 22000  # This is the price for each item
         total_price += item_price * item_count  # Multiply price by the count
         cart_text += f"{idx}. {item_name} x{item_count} — {item_price * item_count} so'm\n"
 
-    cart_text += f"\n💵 Jami: {total_price} so'm"
 
-    await message.answer(cart_text)
+    cart_text += f"\n💵 Jami: {total_price} so'm"
+    button = [
+        [types.KeyboardButton(text="⬅️ Ortga"), types.KeyboardButton(text="Оформить заказ ✅")],
+        [types.KeyboardButton(text="🔄 Очистить")],
+    ]
+    button_in = [
+        [types.InlineKeyboardButton(text="+", callback_data="plus")],
+    ]
+    keyboards = types.InlineKeyboardMarkup(inline_keyboard=button_in, resize_keyboard=True)
+    keyboard = types.ReplyKeyboardMarkup(keyboard=button, resize_keyboard=True)
+    await message.answer(f'"❌ Наименование" - удалить одну позицию\n\n'
+                         f'" - и +" - уменьшить или увеличить количество продукта\n\n'
+                         f'"🔄 Очистить" - полная очистка корзины',reply_markup=keyboard)
+    await message.answer(cart_text,reply_markup=keyboards)
+    print(3, user_data)
 
 
 
